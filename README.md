@@ -1,1 +1,1 @@
-# sql_study202309
+# sql_study
