@@ -25,7 +25,7 @@ SELECT last_name FROM employees
 WHERE LOWER(last_name) = 'austin';
 
 -- length(길이), instr(문자 찾기, 없으면 0을 반환, 있으면 인덱스(1~) 값)
-SELECT 'abcdef', LENGTH('abcdef'), INSTR('abcdef','z')
+SELECT 'abcdef', LENGTH('abcdef'), INSTR('abcdef','c')
 FROM dual;
 
 SELECT first_name, LENGTH(first_name), INSTR(first_name, 'a')
@@ -81,7 +81,8 @@ EMPLOYEES 테이블에서 이름, 입사일자 컬럼으로 변경(별칭)해서 이름순으로 오름차순 
 SELECT
     CONCAT(first_name, last_name) AS 이름,
     REPLACE(hire_date, '/', '') AS 입사일자
-FROM employees;
+FROM employees
+ORDER BY 이름 ASC;
 
 /*
 문제 2.
@@ -90,11 +91,7 @@ EMPLOYEES 테이블에서 phone_number컬럼은 ###.###.####형태로 저장되어 있다
 전화 번호를 출력하도록 쿼리를 작성하세요. (CONCAT, SUBSTR 사용)
 */
 SELECT 
---    REPLACE(CONCAT(CONCAT(SUBSTR(phone_number,1,3), SUBSTR(phone_number,5,3)),SUBSTR(phone_number, 9, 4)), SUBSTR(phone_number,1,3) , '(02)'),
---    REPLACE(phone_number, SUBSTR(phone_number,1,3), '(02)'),
-    CONCAT(REPLACE(SUBSTR(phone_number, 1, 3), SUBSTR(phone_number, 1, 3), '(02)'), SUBSTR(phone_number, 4)) AS  전화번호,
-    CONCAT('(02)', SUBSTR(phone_number, 4)) AS 전화번호
-    
+    CONCAT('(02)', SUBSTR(phone_number, 5)) AS 전화번호
 FROM employees;
 
 
