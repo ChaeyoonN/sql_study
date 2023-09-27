@@ -95,12 +95,11 @@ ORDER BY employee_id ASC;
 ROLLBACK;
 
 -- 문제1
-CREATE TABLE DEPTS AS (SELECT department_id, department_name, manager_id, location_id
-FROM departments);
+CREATE TABLE DEPTS AS (SELECT * FROM departments);
 
 SELECT * FROM DEPTS;
 
-INSERT INTO DEPTS
+INSERT INTO DEPTS -- (department_id, department_name, location_id)
 VALUES(280, '개발', null, 1800);
 
 INSERT INTO DEPTS
@@ -136,6 +135,10 @@ WHERE department_name IN ('회계부', '재정', '인사', '영업');
 -- 문제3
 DELETE FROM DEPTS
 WHERE department_name = '영업';
+-- 아래처럼 해도 됌(서브쿼리 이용)
+DELETE FROM DEPTS
+WHERE department_id = (SELECT department_id FROM  DEPTS
+                        WHERE department_name = '영업');
 
 DELETE FROM DEPTS
 WHERE department_name = 'NOC';
@@ -168,6 +171,8 @@ CREATE TABLE jobs_it AS (SELECT * FROM jobs
 WHERE min_salary > 6000);
 
 SELECT * FROM jobs_it;
+delete from jobs_it;
+DROP TABLE jobs_it;
 
 INSERT INTO jobs_it 
 VALUES ('IT_DEV', '아이티개발팀', 6000, 20000);
@@ -179,13 +184,13 @@ INSERT INTO jobs_it
 VALUES ('SEC_DEV', '보안개발팀', 6000, 19000);
 -- 문제5-4
 MERGE INTO jobs_it a 
-    USING (SELECT * FROM jobs) b
+    USING (SELECT * FROM jobs WHERE min_salary > 5000) b -- 병합 자체의 범위 좁히기
     ON (a.job_id = b.job_id)
 WHEN MATCHED THEN
     UPDATE SET 
         a.min_salary = b.min_salary,
         a.max_salary = b.max_salary
-        WHERE a.min_salary > 5000
+        -- WHERE b.min_salary > 5000 -- 아래의 not matched then 구문으로 인해 나머지 경우가 삽입됨
 WHEN NOT MATCHED THEN
     INSERT VALUES
         (b.job_id, b.job_title, b.min_salary, b.max_salary);
