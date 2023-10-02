@@ -76,7 +76,7 @@ ORDER BY AVG(salary) DESC; -- SQL 구문이 확실히 짧아짐.
 DROP VIEW view_emp;
 
 /*
-VIEW에 INSERT사 일어나는 경우 실제 테이블에도 반영이 됩니다.
+VIEW에 INSERT가 일어나는 경우 실제 테이블에도 반영이 됩니다.
 그래서 VIEW의 INSERT, UPDATE, DELETE는 많은 제약 사항이 따릅니다.
 원본 테이블이 NOT NULL인 경우 VIEW에 INSERT가 불가능합니다.
 VIEW에서 사용하는 컬럼이 가상열인 경우에도 안됩니다.
@@ -86,7 +86,7 @@ VIEW에서 사용하는 컬럼이 가상열인 경우에도 안됩니다.
 INSERT INTO view_emp_dept_jobs
 VALUES(300, 'test', 'test', 'test', 10000);
 
--- JOIN된 뷰의 경우 한 번에 수정할 수 없습니다.
+-- JOIN된 뷰의 경우 한 번에 수정할 수 없습니다.(원본테이블에 반영되므로 원본의 어떤 컬럼만 채울 수 없음)
 INSERT INTO view_emp_dept_jobs
 (employee_id, department_name, job_title, salary)
 VALUES(300, 'test', 'test', 10000);

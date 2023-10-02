@@ -192,7 +192,7 @@ employees테이블, departments테이블을 left조인 hire_date를 오름차순 기준으로
 조건) hire_date를 기준으로 오름차순 정렬 되어야 합니다. rownum이 틀어지면 안됩니다.
 */
 SELECT * FROM (
-    SELECT ROWNUM rn, tbl.*
+    SELECT ROWNUM AS rn, tbl.*
     FROM (   
         SELECT 
         e.employee_id, e.first_name, e.phone_number, e.hire_date,
@@ -217,6 +217,17 @@ SELECT
    ) AS department_name
 FROM employees e
 WHERE job_id = 'SA_MAN';
+
+SELECT tbl.*, d.department_name
+FROM 
+(
+    SELECT 
+         last_name, job_id, department_id
+    FROM employees 
+    WHERE job_id = 'SA_MAN'
+    ) tbl
+JOIN departments d
+ON tbl.department_id = d.department_id;
 /*
 문제 14
 --DEPARTMENT테이블에서 각 부서의 ID, NAME, MANAGER_ID와 부서에 속한 인원수를 출력하세요.
@@ -236,7 +247,34 @@ SELECT
 FROM departments d
 ORDER BY 인원수 DESC
 ) 
-WHERE 인원수 > 0;
+WHERE 인원수 > 0; 
+
+-- 방법2
+SELECT 
+    department_id, department_name, manager_id,
+    (
+        SELECT COUNT(*)
+        FROM employees e
+        WHERE e.department_id = d.department_id
+    ) AS 인원수
+FROM departments d
+WHERE manager_id IS NOT NULL -- LEFT JOIN과 같으므로 조건 써준다
+ORDER BY 인원수 DESC; 
+
+-- 방법3
+SELECT 
+    d.department_id, d.department_name, d.manager_id,
+    a.total
+FROM departments d 
+JOIN
+    (
+    SELECT 
+        department_id, COUNT(*) AS total
+    FROM employees
+    GROUP BY department_id
+    ) a
+ON d.department_id = a.department_id -- d와 a 이너조인하면 인원있는 경우만 나옴
+ORDER BY a.total DESC;
 /*
 문제 15
 --부서에 대한 정보 전부와, 주소, 우편번호, 부서별 평균 연봉을 구해서 출력하세요.
@@ -255,11 +293,45 @@ SELECT
         WHERE loc.location_id = d.location_id
     ) AS 우편번호,
     (
-        SELECT NVL(AVG(salary), 0)
+        SELECT NVL(TRUNC(AVG(salary)), 0)
         FROM employees e
         WHERE e.department_id = d.department_id
     ) AS 부서별평균연봉
 FROM  departments d;
+
+-- 방법2
+SELECT 
+    d.*,
+    loc.street_address, loc.postal_code,
+    NVL(tbl.result, 0)
+FROM departments d
+JOIN locations loc
+ON d.location_id = loc.location_id
+LEFT JOIN
+    (
+    SELECT 
+        department_id, TRUNC(AVG(salary), 0) AS result
+    FROM employees
+    GROUP BY department_id) tbl
+ON d.department_id = tbl.department_id;
+
+-- 방법3
+SELECT
+    d.*,
+    loc.street_address, loc.postal_code,
+    NVL(tbl.result, 0) AS 부서별평균급여
+FROM departments d
+JOIN locations loc
+ON d.location_id = loc.location_id
+LEFT JOIN
+    (
+    SELECT
+        department_id,
+        TRUNC(AVG(salary), 0) AS result
+    FROM employees
+    GROUP BY department_id
+    ) tbl
+ON d.department_id = tbl.department_id;
 /*
 문제 16
 -문제 15 결과에 대해 DEPARTMENT_ID기준으로 내림차순 정렬해서 
@@ -290,3 +362,30 @@ FROM
     ORDER BY department_id DESC
 )
 WHERE rn >=1 AND rn <= 10;
+
+-- 방법2
+SELECT * FROM
+    (
+    SELECT ROWNUM AS rn, tbl2.*
+        FROM
+        (
+        SELECT
+            d.*,
+            loc.street_address, loc.postal_code,
+            NVL(tbl.result, 0) AS 부서별평균급여
+        FROM departments d
+        JOIN locations loc
+        ON d.location_id = loc.location_id
+        LEFT JOIN
+            (
+            SELECT
+                department_id,
+                TRUNC(AVG(salary), 0) AS result
+            FROM employees
+            GROUP BY department_id
+            ) tbl
+        ON d.department_id = tbl.department_id
+        ORDER BY d.department_id DESC
+        ) tbl2
+    )
+WHERE rn > 0 AND rn <= 10;
