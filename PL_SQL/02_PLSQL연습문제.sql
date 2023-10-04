@@ -2,8 +2,8 @@
 -- 1. employees 테이블에서 201번 사원의 이름과 이메일 주소를 출력하는
 -- 익명블록을 만들어 보자. (변수에 담아서 출력하세요.)
 DECLARE
-    name employees.first_name%TYPE(50);
-    email employees.email%TYPE(50);
+    name employees.first_name%TYPE;
+    email employees.email%TYPE;
 BEGIN
     SELECT
         first_name,
