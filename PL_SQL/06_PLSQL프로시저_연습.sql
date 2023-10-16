@@ -123,6 +123,36 @@ BEGIN
     
 END;
 
+--더 간단하게 풀기
+CREATE OR REPLACE PROCEDURE emp_hire_proc
+    (
+     p_employee_id IN employees.employee_id%TYPE,
+     p_year OUT NUMBER
+    )
+IS
+    v_hire_date employees.hire_date%TYPE;
+BEGIN
+    SELECT
+        hire_date
+    INTO
+        v_hire_date
+    FROM employees
+    WHERE employee_id = p_employee_id;
+    
+    p_year := TRUNC((sysdate - v_hire_date) / 365);
+    
+    EXCEPTION WHEN OTHERS THEN
+        dbms_output.put_line(p_employee_id || '은(는) 없는 데이터 입니다.');
+      
+END;
+
+DECLARE
+    v_year NUMBER;
+BEGIN
+    emp_hire_proc(576, v_year);
+    dbms_output.put_line(v_year || '년');
+END;
+
 /*
 프로시저명 - new_emp_proc
 employees 테이블의 복사 테이블 emps를 생성합니다.
